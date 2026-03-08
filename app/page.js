@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import dynamic from 'next/dynamic';
+import ChatBubble from './components/ChatBubble';
 
 // Cargamos el mapa solo en el cliente
 const Mapa = dynamic(() => import('./components/Mapa'), { ssr: false });
@@ -215,7 +216,7 @@ export default function Home() {
       <footer className="py-8 text-center text-gray-500 text-sm bg-blue-50">
         <p>Hecho con ❤️ para las familias.</p>
       </footer>
-
+<ChatBubble />
     </main>
   );
 }
