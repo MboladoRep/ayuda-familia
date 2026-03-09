@@ -3,10 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import dynamic from 'next/dynamic';
 
-// Importamos los componentes
 import ChatBubble from './components/ChatBubble';
-
-// Cargamos el mapa solo en el cliente
 const Mapa = dynamic(() => import('./components/Mapa'), { ssr: false });
 
 export default function Home() {
@@ -15,6 +12,9 @@ export default function Home() {
   const [cargando, setCargando] = useState(false);
   const [recursos, setRecursos] = useState([]);
   const [verMapa, setVerMapa] = useState(false);
+  
+  // Estado para controlar el chat desde la página principal
+  const [chatAbierto, setChatAbierto] = useState(false); 
 
   useEffect(() => {
     async function cargarRecursos() {
@@ -42,10 +42,8 @@ export default function Home() {
       alert('Por favor, indica la edad y problema de al menos un hijo');
       return;
     }
-
     setCargando(true);
     setResultados([]);
-
     const promesasBusqueda = hijosValidos.map(async (hijo) => {
       const { data, error } = await supabase
         .from('guias')
@@ -53,18 +51,16 @@ export default function Home() {
         .eq('edad', hijo.edad)
         .eq('problema', hijo.problema)
         .single();
-
       if (error || !data) {
         return { 
           status: 'no_encontrado', 
           edadInput: hijo.edad, 
           problema: hijo.problema, 
-          consejo_gratis: 'No hay guía específica. Usa el chat de IA abajo a la derecha.' 
+          consejo_gratis: 'No hay guía específica. Usa el chat de IA abajo.' 
         };
       }
       return { status: 'ok', ...data, edadInput: hijo.edad };
     });
-
     const resultadosObtenidos = await Promise.all(promesasBusqueda);
     setResultados(resultadosObtenidos);
     setCargando(false);
@@ -86,33 +82,17 @@ export default function Home() {
           {hijos.map((hijo, index) => (
             <div key={hijo.id} className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 relative">
               {hijos.length > 1 && (
-                <button 
-                  onClick={() => quitarHijo(hijo.id)} 
-                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 text-sm font-bold"
-                >
-                  X
-                </button>
+                <button onClick={() => quitarHijo(hijo.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-600 text-sm font-bold">X</button>
               )}
-              
               <p className="font-bold text-gray-800 mb-3">Hijo/a #{index + 1}</p>
-              
               <div className="grid grid-cols-1 gap-4">
-                <select 
-                  className="w-full p-3 border border-gray-300 rounded-lg"
-                  value={hijo.edad}
-                  onChange={(e) => actualizarHijo(hijo.id, 'edad', e.target.value)}
-                >
+                <select className="w-full p-3 border border-gray-300 rounded-lg" value={hijo.edad} onChange={(e) => actualizarHijo(hijo.id, 'edad', e.target.value)}>
                   <option value="">Edad</option>
                   <option value="0-3 años">0 - 3 años</option>
                   <option value="3-6 años">3 - 6 años</option>
                   <option value="6-12 años">6 - 12 años</option>
                 </select>
-
-                <select 
-                  className="w-full p-3 border border-gray-300 rounded-lg"
-                  value={hijo.problema}
-                  onChange={(e) => actualizarHijo(hijo.id, 'problema', e.target.value)}
-                >
+                <select className="w-full p-3 border border-gray-300 rounded-lg" value={hijo.problema} onChange={(e) => actualizarHijo(hijo.id, 'problema', e.target.value)}>
                   <option value="">Problema</option>
                   <option value="Rabieta">Rabietas</option>
                   <option value="Sueño">Problemas de sueño</option>
@@ -123,10 +103,7 @@ export default function Home() {
             </div>
           ))}
 
-          <button onClick={agregarHijo} className="w-full mb-6 text-blue-600 font-semibold py-2 border-2 border-dashed border-blue-300 rounded-lg hover:bg-blue-50">
-            + Añadir otro hijo/a
-          </button>
-
+          <button onClick={agregarHijo} className="w-full mb-6 text-blue-600 font-semibold py-2 border-2 border-dashed border-blue-300 rounded-lg hover:bg-blue-50">+ Añadir otro hijo/a</button>
           <button onClick={buscarAyuda} disabled={cargando} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400">
             {cargando ? 'Buscando...' : 'Buscar Ayuda'}
           </button>
@@ -141,19 +118,13 @@ export default function Home() {
                   <h3 className="font-bold text-gray-800">Edad: {res.edadInput}</h3>
                   <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Ayuda</span>
                 </div>
-                
                 <p className="text-gray-700 mb-4 text-lg">{res.consejo_gratis}</p>
-
                 {res.stripe_link && (
                   <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mt-4">
                     <h4 className="font-bold text-amber-900 mb-1">🚀 Recomendación</h4>
-                    <p className="text-amber-800 mb-3 text-sm">
-                      Producto: <strong>{res.producto_nombre}</strong>
-                    </p>
+                    <p className="text-amber-800 mb-3 text-sm">Producto: <strong>{res.producto_nombre}</strong></p>
                     <a href={res.stripe_link} target="_blank" rel="noopener noreferrer">
-                      <button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg text-sm">
-                        Ver Solución Premium
-                      </button>
+                      <button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg text-sm">Ver Solución Premium</button>
                     </a>
                   </div>
                 )}
@@ -162,6 +133,33 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* --- NUEVA SECCIÓN: ASISTENTE IA (MUY VISIBLE) --- */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-3xl font-bold mb-4">🤖 ¿Necesitas hablar ahora mismo?</h2>
+          <p className="text-blue-100 mb-6 text-lg">
+            A veces solo necesitas que te escuchen o una respuesta rápida a esa duda que no te deja dormir. 
+            Nuestro asistente inteligente está aquí para ti 24/7, sin juzgar.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-sm text-left">
+              <p className="italic">"¿Qué hago si mi hijo se tira al suelo en el supermercado?"</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-sm text-left">
+              <p className="italic">"Me siento agobiado, ¿cómo puedo calmarme?"</p>
+            </div>
+          </div>
+          
+          <button 
+            onClick={() => setChatAbierto(true)} 
+            className="mt-8 bg-white text-blue-700 font-bold py-4 px-8 rounded-full hover:bg-blue-100 transition text-lg shadow-lg transform hover:scale-105"
+          >
+            Abrir Chat de Apoyo IA
+          </button>
+        </div>
+      </div>
+      {/* --- FIN NUEVA SECCIÓN --- */}
 
       {/* SECCIÓN MAPA */}
       <div className="bg-white py-12 px-4">
@@ -174,13 +172,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer className="py-8 text-center text-gray-500 text-sm bg-blue-50">
         <p>Hecho con ❤️ para las familias.</p>
       </footer>
 
-      {/* CHAT BUBBLE (BOTÓN FLOTANTE) */}
-      <ChatBubble />
+      {/* Pasamos el control del chat al componente */}
+      <ChatBubble isOpen={chatAbierto} setIsOpen={setChatAbierto} />
 
     </main>
   );
