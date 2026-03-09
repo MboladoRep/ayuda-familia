@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 
-export default function ChatBubble() {
-  const [abierto, setAbierto] = useState(false);
+// Recibimos 'isOpen' y 'setIsOpen' como propiedades
+export default function ChatBubble({ isOpen, setIsOpen }) {
   const [input, setInput] = useState('');
   const [mensajes, setMensajes] = useState([
-    { rol: 'bot', texto: '¡Hola! Soy tu asistente de crianza. ¿En qué te puedo ayudar ahora?' }
+    { rol: 'bot', texto: '¡Hola! Soy tu asistente de crianza. ¿En qué te puedo ayudar?' }
   ]);
   const [cargando, setCargando] = useState(false);
 
@@ -27,7 +27,7 @@ export default function ChatBubble() {
       
       setMensajes(prev => [...prev, { rol: 'bot', texto: data.respuesta }]);
     } catch (error) {
-      setMensajes(prev => [...prev, { rol: 'bot', texto: 'Error al conectar con el asistente.' }]);
+      setMensajes(prev => [...prev, { rol: 'bot', texto: 'Error al conectar.' }]);
     } finally {
       setCargando(false);
     }
@@ -35,12 +35,12 @@ export default function ChatBubble() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {abierto ? (
+      {isOpen ? (
         <div className="w-80 h-96 bg-white shadow-2xl rounded-xl flex flex-col overflow-hidden border border-gray-200">
           {/* Header */}
           <div className="bg-blue-600 p-4 flex justify-between items-center">
             <span className="text-white font-bold">Asistente Familiar</span>
-            <button onClick={() => setAbierto(false)} className="text-white font-bold">X</button>
+            <button onClick={() => setIsOpen(false)} className="text-white font-bold">X</button>
           </div>
           
           {/* Chat Area */}
@@ -63,14 +63,15 @@ export default function ChatBubble() {
               onChange={(e) => setInput(e.target.value)} 
               onKeyDown={(e) => e.key === 'Enter' && enviarMensaje()}
               placeholder="Escribe tu duda..." 
-              className="flex-1 border rounded-full px-4 py-1 text-sm focus:outline-none focus:ring-1"
+              className="flex-1 border rounded-full px-4 py-1 text-sm focus:outline-none"
             />
             <button onClick={enviarMensaje} className="bg-blue-600 text-white rounded-full px-3 font-bold text-sm hover:bg-blue-700">➤</button>
           </div>
         </div>
       ) : (
+        // Botón flotante normal
         <button 
-          onClick={() => setAbierto(true)} 
+          onClick={() => setIsOpen(true)} 
           className="bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition transform hover:scale-110"
         >
           💬
