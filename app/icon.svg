@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Fondo azul redondo -->
+  <circle cx="50" cy="50" r="48" fill="#2563EB"/>
+  <!-- Techo de la casa -->
+  <path d="M50 20 L15 55 L85 55 Z" fill="white"/>
+  <!-- Cuerpo de la casa -->
+  <rect x="25" y="55" width="50" height="30" fill="white"/>
+  <!-- Corazón en la casa -->
+  <path d="M50 62 C40 52, 25 60, 50 80 C75 60, 60 52, 50 62" fill="#2563EB"/>
+</svg>
