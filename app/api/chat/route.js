@@ -4,17 +4,15 @@ export async function POST(request) {
   try {
     const { mensaje } = await request.json();
 
-    // Buscamos específicamente la variable GROQ_API_KEY
     const apiKey = process.env.GROQ_API_KEY;
 
-    // Si no encontramos la clave, avisamos
     if (!apiKey) {
-      console.error("Error: Falta GROQ_API_KEY en Vercel");
       return NextResponse.json({ 
-        respuesta: "Error de configuración: No se ha encontrado la API Key de Groq en Vercel. Asegúrate de llamarla GROQ_API_KEY y hacer Redeploy." 
+        respuesta: "Error: Falta la GROQ_API_KEY en Vercel." 
       });
     }
 
+    // Usamos el modelo actualizado
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,36 +20,36 @@ export async function POST(request) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "model: "llama-3.1-8b-instant"",
+        model: "llama-3.1-8b-instant", // <--- MODELO ACTUALIZADO
         messages: [
           {
             role: "system",
-            content: "Eres un experto en crianza. Responde en español, breve y empático."
+            content: "Eres un asistente empático y experto en crianza familiar. Responde siempre en español, de forma breve, cálida y útil."
           },
           {
             role: "user",
             content: mensaje
           }
-        ]
+        ],
+        temperature: 0.7
       })
     });
 
     const data = await response.json();
 
-    // Si Groq nos da un error (ej: clave mal copiada)
     if (data.error) {
-       console.error("Error devuelto por Groq:", data.error);
+       console.error("Error Groq:", data.error);
        return NextResponse.json({ respuesta: `Error de la IA: ${data.error.message}` });
     }
 
     if (data.choices && data.choices[0].message.content) {
       return NextResponse.json({ respuesta: data.choices[0].message.content });
     } else {
-      return NextResponse.json({ respuesta: "La IA no ha devuelto texto." });
+      return NextResponse.json({ respuesta: "La IA no ha respondido." });
     }
 
   } catch (error) {
-    console.error("Error general:", error);
-    return NextResponse.json({ respuesta: "Error de conexión en el servidor." }, { status: 500 });
+    console.error("Error servidor:", error);
+    return NextResponse.json({ respuesta: "Error interno." }, { status: 500 });
   }
 }
