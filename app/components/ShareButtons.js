@@ -15,8 +15,10 @@ export default function ShareButtons({ titulo }) {
     }
   };
 
-  const whatsappUrl = () =>
-    `https://wa.me/?text=${encodeURIComponent(titulo + ' ' + window.location.href)}`;
+ const whatsappUrl = () => {
+  const url = typeof window !== 'undefined' ? window.location.href : '';
+  return `https://wa.me/?text=${encodeURIComponent(titulo + ' ' + url)}`;
+};
 
   return (
     <div className="flex flex-wrap gap-2 border-t pt-4">
