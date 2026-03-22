@@ -8,7 +8,6 @@
 
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-Image from 'next/image';
 import ShareButtons from '../components/ShareButtons'; // componente cliente (ver abajo)
 
 // SEO metadata estática
