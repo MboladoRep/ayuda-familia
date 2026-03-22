@@ -1,40 +1,67 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
-  const [acceso, setAcceso] = useState(false); // "1234" es la clave por defecto
+  const [acceso, setAcceso] = useState(false);
   const [estado, setEstado] = useState('');
+  const [articulos, setArticulos] = useState([]);
+
+  // Cargar artículos al entrar
+  useEffect(() => {
+    if (acceso) cargarArticulos();
+  }, [acceso]);
+
+  const cargarArticulos = async () => {
+    const { data } = await supabase.from('articulos').select('*').order('created_at', { ascending: false });
+    if (data) setArticulos(data);
+  };
 
   const generarArticulo = async () => {
-    setEstado('Generando artículo con IA... (esto puede tardar 10 segundos)');
-    
+    setEstado('⏳ Generando...');
     try {
       const res = await fetch('/api/generar-articulo', { method: 'POST' });
-      const data = await res.json();
-
       if (res.ok) {
-        setEstado(`✅ ¡Artículo creado! Título: "${data.articulo.titulo}"`);
+        setEstado('✅ ¡Artículo creado!');
+        cargarArticulos(); // Recargar lista
       } else {
-        setEstado('❌ Error: ' + (data.error || 'Desconocido'));
+        setEstado('❌ Error al generar');
       }
     } catch (e) {
       setEstado('❌ Error de conexión');
     }
   };
 
-  // Pantalla de Login simple
+  const borrarArticulo = async (id) => {
+    if (!confirm("¿Seguro que quieres borrar este artículo?")) return;
+    
+    try {
+      const res = await fetch('/api/borrar-articulo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        cargarArticulos(); // Recargar lista
+      }
+    } catch (e) {
+      alert("Error al borrar");
+    }
+  };
+
+  // Pantalla de Login
   if (!acceso) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="bg-white p-8 rounded-xl shadow-xl text-center">
-          <h1 className="text-xl font-bold mb-4">🔒 Zona de Administrador</h1>
+          <h1 className="text-xl font-bold mb-4">🔒 Zona Admin</h1>
           <input 
             type="password" 
-            placeholder="Introduce la clave" 
+            placeholder="Clave" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 rounded w-full mb-4"
+            className="border p-2 rounded w-full mb-4 text-black"
           />
           <button 
             onClick={() => password === '1234' ? setAcceso(true) : alert('Clave incorrecta')}
@@ -47,26 +74,43 @@ export default function AdminPage() {
     );
   }
 
-  // Panel de Admin
+  // Panel de Control
   return (
     <main className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white p-8 rounded-xl shadow-lg">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Panel de Generación IA</h1>
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white p-8 rounded-xl shadow-lg mb-8">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Panel de Administrador</h1>
           
           <button 
             onClick={generarArticulo}
-            className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition mb-4"
+            className="bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition mr-4"
           >
-            ✨ Generar Nuevo Artículo Automático
+            ✨ Crear Nuevo Artículo
           </button>
+          <span className="text-sm text-gray-500">{estado}</span>
+        </div>
 
-          <div className="mt-4 p-4 bg-gray-50 rounded border min-h-[50px] text-gray-700">
-            {estado || 'Listo para generar...'}
-          </div>
+        {/* LISTA DE ARTÍCULOS */}
+        <div className="bg-white p-8 rounded-xl shadow-lg">
+          <h2 className="text-xl font-bold mb-4">Artículos Actuales</h2>
           
-          <div className="mt-6 text-xs text-gray-400 text-center">
-            Los artículos generados aparecerán en la pestaña "Blog".
+          {articulos.length === 0 && <p className="text-gray-400">No hay artículos.</p>}
+          
+          <div className="space-y-4">
+            {articulos.map((art) => (
+              <div key={art.id} className="flex justify-between items-center border p-4 rounded-lg hover:bg-gray-50">
+                <div>
+                  <h3 className="font-semibold text-gray-800">{art.titulo}</h3>
+                  <p className="text-xs text-gray-400">{new Date(art.created_at).toLocaleDateString()}</p>
+                </div>
+                <button 
+                  onClick={() => borrarArticulo(art.id)}
+                  className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-1 px-3 rounded"
+                >
+                  Borrar
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
