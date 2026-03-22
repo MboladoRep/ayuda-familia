@@ -218,16 +218,16 @@ export default function Home() {
         </div>
       </div>
 
-            {/* ENLACE AL BLOG */}
+                 {/* ENLACE AL BLOG */}
       <div className="bg-blue-50 py-10 px-4 text-center border-t">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">📖 Blog de Ayuda</h3>
-        <p className="text-gray-600 mb-4">Lee artículos generados por IA con consejos prácticos.</p>
+        <h3 className="text-2xl font-bold text-gray-800 mb-2">📖 Rincón de la Familia</h3>
+        <p className="text-gray-600 mb-4">Artículos y consejos prácticos para el día a día.</p>
         <a href="/articulos">
           <button className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-2 px-6 rounded-full hover:bg-blue-50 transition">
-            Ir al Blog
+            Leer Artículos
           </button>
         </a>
-      </div>          
+      </div>        
       <footer className="py-8 text-center text-gray-500 text-sm bg-blue-50">
         <p>Hecho con ❤️ para las familias.</p>
       </footer>
