@@ -10,12 +10,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 import dynamic from 'next/dynamic';
-import ChatBubble from './components/ChatBubble';
+import ChatBubble from '../components/ChatBubble';
 import Link from 'next/link';
 
-const Mapa = dynamic(() => import('./components/Mapa'), { ssr: false });
+const Mapa = dynamic(() => import('../components/Mapa'), { ssr: false });
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
