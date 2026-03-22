@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+// CORREGIDO: Añadimos un nivel más (../../) para llegar a la carpeta lib
+import { supabase } from '../../lib/supabaseClient';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -24,7 +25,7 @@ export default function AdminPage() {
       const res = await fetch('/api/generar-articulo', { method: 'POST' });
       if (res.ok) {
         setEstado('✅ ¡Artículo creado!');
-        cargarArticulos(); // Recargar lista
+        cargarArticulos(); 
       } else {
         setEstado('❌ Error al generar');
       }
@@ -33,26 +34,26 @@ export default function AdminPage() {
     }
   };
 
-   const borrarArticulo = async (id) => {
+  const borrarArticulo = async (id) => {
     if (!confirm("¿Seguro que quieres borrar este artículo?")) return;
     
     try {
       const res = await fetch('/api/borrar-articulo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }) // Enviamos el ID aquí
+        body: JSON.stringify({ id })
       });
-      
       if (res.ok) {
-        cargarArticulos(); // Recargamos la lista para que desaparezca
+        cargarArticulos(); 
       } else {
         const data = await res.json();
-        alert("Error al borrar: " + data.error);
+        alert("Error: " + data.error);
       }
     } catch (e) {
       alert("Error de conexión");
     }
   };
+
   // Pantalla de Login
   if (!acceso) {
     return (
