@@ -33,6 +33,9 @@ async function getArticulos() {
     .select('*')
     .order('created_at', { ascending: false });
 
+  console.log('SUPABASE articulos data:', JSON.stringify(data));
+  console.log('SUPABASE articulos error:', JSON.stringify(error));
+
   if (error) {
     console.error('Error cargando artículos:', error.message);
     return [];
