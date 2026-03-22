@@ -8,7 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import Image from 'next/image';
+Image from 'next/image';
 import ShareButtons from '../components/ShareButtons'; // componente cliente (ver abajo)
 
 // SEO metadata estática
@@ -69,17 +69,13 @@ export default async function ArticulosPage() {
           ) : (
             articulos.map((art) => (
               <article key={art.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-                {art.imagen_url && (
-                  <div className="relative w-full h-48">
-                    <Image
-                      src={art.imagen_url}
-                      alt={art.titulo}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 768px"
-                    />
-                  </div>
-                )}
+               {art.imagen_url && (
+  <img
+    src={art.imagen_url}
+    alt={art.titulo}
+    className="w-full h-48 object-cover"
+  />
+)}
                 <div className="p-6">
                   <h2 className="text-xl font-bold text-gray-800 mb-2">{art.titulo}</h2>
                   <p className="text-gray-600 text-sm mb-4 whitespace-pre-line">{art.contenido}</p>
