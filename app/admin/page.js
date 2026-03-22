@@ -33,23 +33,26 @@ export default function AdminPage() {
     }
   };
 
-  const borrarArticulo = async (id) => {
+   const borrarArticulo = async (id) => {
     if (!confirm("¿Seguro que quieres borrar este artículo?")) return;
     
     try {
       const res = await fetch('/api/borrar-articulo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id }) // Enviamos el ID aquí
       });
+      
       if (res.ok) {
-        cargarArticulos(); // Recargar lista
+        cargarArticulos(); // Recargamos la lista para que desaparezca
+      } else {
+        const data = await res.json();
+        alert("Error al borrar: " + data.error);
       }
     } catch (e) {
-      alert("Error al borrar");
+      alert("Error de conexión");
     }
   };
-
   // Pantalla de Login
   if (!acceso) {
     return (
