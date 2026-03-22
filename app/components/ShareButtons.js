@@ -1,7 +1,4 @@
 // app/components/ShareButtons.js
-// ✅ 'use client' solo donde se necesita (navigator, window)
-// ✅ Link de WhatsApp seguro — construye la URL en el cliente
-
 'use client';
 
 export default function ShareButtons({ titulo }) {
@@ -15,10 +12,10 @@ export default function ShareButtons({ titulo }) {
     }
   };
 
- const whatsappUrl = () => {
-  const url = typeof window !== 'undefined' ? window.location.href : '';
-  return `https://wa.me/?text=${encodeURIComponent(titulo + ' ' + url)}`;
-};
+  const whatsappUrl = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    return `https://wa.me/?text=${encodeURIComponent(titulo + ' ' + url)}`;
+  };
 
   return (
     <div className="flex flex-wrap gap-2 border-t pt-4">
@@ -26,7 +23,7 @@ export default function ShareButtons({ titulo }) {
         onClick={compartir}
         className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-2 px-4 rounded-full"
       >
-        📎 Copiar enlace
+        📎 Copiar
       </button>
       <a
         href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(titulo)}`}
