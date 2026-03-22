@@ -29,8 +29,13 @@ export default function ArticulosPage() {
       <div className="max-w-3xl mx-auto">
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-800 mb-2">📚 Blog de la Familia</h1>
-          <p className="text-gray-600">Consejos generados por inteligencia artificial para tu día a día.</p>
+          {/* BOTÓN DE VOLVER */}
+          <a href="/" className="inline-block mb-4 text-blue-600 hover:underline text-sm font-semibold">
+            &larr; Volver a la página principal
+          </a>
+          
+          <h1 className="text-3xl font-bold text-blue-800 mb-2">📖 Rincón de la Familia</h1>
+          <p className="text-gray-600">Consejos y reflexiones para hacer la crianza un poco más fácil.</p>
         </div>
 
         <div className="space-y-6">
@@ -57,6 +62,13 @@ export default function ArticulosPage() {
               Aún no hay artículos. ¡Vuelve pronto!
             </div>
           )}
+        </div>
+        
+        {/* BOTÓN DE VOLVER ABAJO */}
+        <div className="text-center mt-10">
+           <a href="/" className="text-blue-600 hover:underline font-semibold">
+              &larr; Volver al Inicio
+           </a>
         </div>
       </div>
     </main>
