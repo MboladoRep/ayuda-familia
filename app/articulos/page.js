@@ -10,6 +10,9 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import ShareButtons from '../components/ShareButtons'; // componente cliente (ver abajo)
 
+// Fuerza renderizado en servidor en cada request (no en build time)
+export const dynamic = 'force-dynamic';
+
 // SEO metadata estática
 export const metadata = {
   title: 'Rincón de la Familia | Familia Ayuda',
