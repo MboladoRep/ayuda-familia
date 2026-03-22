@@ -7,22 +7,28 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
   try {
+    // Leemos el ID que enviamos desde el panel
     const { id } = await request.json();
 
     if (!id) {
       return NextResponse.json({ error: "ID no proporcionado" }, { status: 400 });
     }
 
+    // Ejecutamos el borrado en Supabase
     const { error } = await supabase
       .from('articulos')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error Supabase:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    return NextResponse.json({ error: "Error al borrar" }, { status: 500 });
+    console.error("Error servidor:", error);
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
