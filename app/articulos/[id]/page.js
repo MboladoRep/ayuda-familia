@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import AudioPlayer from '../../../components/AudioPlayer';
+// RUTA CORREGIDA: Solo dos niveles arriba (../../)
+import AudioPlayer from '../../components/AudioPlayer';
 import Link from 'next/link';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -7,7 +8,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // CONFIGURACIÓN SEO PARA WHATSAPP/REDES SOCIALES
-// Esto hace que la foto del artículo aparezca al compartir
 export async function generateMetadata({ params }) {
   const { data: articulo } = await supabase
     .from('articulos')
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: articulo?.titulo,
       description: articulo?.contenido?.substring(0, 150),
-      images: [articulo?.imagen_url], // Imagen específica para WhatsApp
+      images: [articulo?.imagen_url],
       type: 'article',
     },
   };
