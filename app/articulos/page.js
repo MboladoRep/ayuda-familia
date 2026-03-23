@@ -1,20 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
-import CompartirBotones from './CompartirBotones';
+import Link from 'next/link';
 
-// Configuración de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ------------------------------------------------------------------
-// IMPORTANTE: Esto fuerza a Vercel a no usar caché.
-// Hace que la página se actualice cada vez que alguien entra.
-// ------------------------------------------------------------------
-export const revalidate = 0; 
+export const revalidate = 0; // Sin caché
 
-// Función principal asíncrona (Server Component)
 export default async function ArticulosPage() {
-  // 1. Obtener artículos desde Supabase
   const { data: articulos } = await supabase
     .from('articulos')
     .select('*')
@@ -40,16 +33,28 @@ export default async function ArticulosPage() {
           )}
 
           {articulos?.map((art) => (
-            <article key={art.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-              {art.imagen_url && (
-                <img src={art.imagen_url} alt={art.titulo} className="w-full h-48 object-cover" />
-              )}
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">{art.titulo}</h2>
-                <p className="text-gray-600 text-sm mb-4 whitespace-pre-line">{art.contenido}</p>
-                <CompartirBotones titulo={art.titulo} />
-              </div>
-            </article>
+            <div key={art.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition group">
+              {/* Envolvemos imagen y título en un Link */}
+              <Link href={`/articulos/${art.id}`}>
+                {art.imagen_url && (
+                  <img 
+                    src={art.imagen_url} 
+                    alt={art.titulo} 
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+                  />
+                )}
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition">
+                    {art.titulo}
+                  </h2>
+                  <p className="text-gray-600 text-sm line-clamp-3">{art.contenido}</p>
+                  
+                  <span className="inline-block mt-4 text-blue-600 font-semibold text-sm">
+                    Leer más / Escuchar &rarr;
+                  </span>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
         
