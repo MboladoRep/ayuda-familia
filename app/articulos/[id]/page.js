@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-// RUTA CORREGIDA: Solo dos niveles arriba (../../)
 import AudioPlayer from '../../components/AudioPlayer';
+import CompartirBotones from '../CompartirBotones'; // Importamos el componente de compartir
 import Link from 'next/link';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -68,7 +68,7 @@ export default async function PaginaArticulo({ params }) {
           />
         )}
 
-        {/* CONTENIDO Y AUDIO */}
+        {/* CONTENIDO, AUDIO Y COMPARTIR */}
         <div className="p-8">
           <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line mb-8">
             {articulo.contenido}
@@ -76,6 +76,11 @@ export default async function PaginaArticulo({ params }) {
 
           {/* BOTÓN DE AUDIO */}
           <AudioPlayer text={articulo.contenido} />
+
+          {/* BOTONES DE COMPARTIR */}
+          <div className="mt-6">
+            <CompartirBotones titulo={articulo.titulo} />
+          </div>
         </div>
       </article>
     </main>
