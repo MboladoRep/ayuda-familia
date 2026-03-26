@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import dynamic from 'next/dynamic';
-
 import ChatBubble from './components/ChatBubble';
+
 const Mapa = dynamic(() => import('./components/Mapa'), { ssr: false });
 
 export default function Home() {
@@ -12,28 +12,25 @@ export default function Home() {
   const [cargando, setCargando] = useState(false);
   const [recursos, setRecursos] = useState([]);
   const [verMapa, setVerMapa] = useState(false);
-  
   const [chatAbierto, setChatAbierto] = useState(false); 
 
   useEffect(() => {
     async function cargarRecursos() {
-      const { data } = await supabase.from('recursos_mapa').select('*');
+      // Manejo de error inicial para el mapa
+      const { data, error } = await supabase.from('recursos_mapa').select('*');
+      if (error) {
+        console.error("Error cargando mapa:", error);
+        // No mostramos alert para no molestar, pero dejamos el array vacío
+        return;
+      }
       if (data) setRecursos(data);
     }
     cargarRecursos();
   }, []);
 
-  const agregarHijo = () => {
-    setHijos([...hijos, { id: Date.now(), edad: '', problema: '' }]);
-  };
-
-  const quitarHijo = (id) => {
-    setHijos(hijos.filter(h => h.id !== id));
-  };
-
-  const actualizarHijo = (id, campo, valor) => {
-    setHijos(hijos.map(h => h.id === id ? { ...h, [campo]: valor } : h));
-  };
+  const agregarHijo = () => setHijos([...hijos, { id: Date.now(), edad: '', problema: '' }]);
+  const quitarHijo = (id) => setHijos(hijos.filter(h => h.id !== id));
+  const actualizarHijo = (id, campo, valor) => setHijos(hijos.map(h => h.id === id ? { ...h, [campo]: valor } : h));
 
   const buscarAyuda = async () => {
     const hijosValidos = hijos.filter(h => h.edad && h.problema);
@@ -43,6 +40,7 @@ export default function Home() {
     }
     setCargando(true);
     setResultados([]);
+
     const promesasBusqueda = hijosValidos.map(async (hijo) => {
       const { data, error } = await supabase
         .from('guias')
@@ -50,16 +48,25 @@ export default function Home() {
         .eq('edad', hijo.edad)
         .eq('problema', hijo.problema)
         .single();
-      if (error || !data) {
+
+      // MANEJO DE ERROR DE CONEXIÓN
+      if (error) {
+        // Si el error es que no encuentra filas, no es un error critico, es "no hay guía"
+        // Pero si es otro error (red), lo marcamos diferente
         return { 
-          status: 'no_encontrado', 
+          status: 'error', 
           edadInput: hijo.edad, 
-          problema: hijo.problema, 
-          consejo_gratis: 'No hay guía específica. Usa el chat de IA abajo.' 
+          consejo_gratis: 'Error de conexión al buscar. Inténtalo de nuevo.' 
         };
       }
+      
+      if (!data) {
+        return { status: 'no_encontrado', edadInput: hijo.edad, consejo_gratis: 'No hay guía específica. Usa el chat de IA abajo.' };
+      }
+
       return { status: 'ok', ...data, edadInput: hijo.edad };
     });
+
     const resultadosObtenidos = await Promise.all(promesasBusqueda);
     setResultados(resultadosObtenidos);
     setCargando(false);
@@ -108,17 +115,20 @@ export default function Home() {
           </button>
         </div>
 
-        {/* RESULTADOS */}
+        {/* RESULTADOS CON MANEJO DE ERROR VISUAL */}
         {resultados.length > 0 && (
           <div className="w-full max-w-lg space-y-6 mb-8">
             {resultados.map((res, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500">
+              <div key={index} className={`bg-white p-6 rounded-xl shadow-lg border-t-4 ${res.status === 'error' ? 'border-red-500 bg-red-50' : 'border-green-500'}`}>
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold text-gray-800">Edad: {res.edadInput}</h3>
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Ayuda</span>
+                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${res.status === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {res.status === 'error' ? 'Error' : 'Ayuda'}
+                  </span>
                 </div>
                 <p className="text-gray-700 mb-4 text-lg">{res.consejo_gratis}</p>
-                {res.stripe_link && (
+                
+                {res.status !== 'error' && res.stripe_link && (
                   <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mt-4">
                     <h4 className="font-bold text-amber-900 mb-1">🚀 Recomendación</h4>
                     <p className="text-amber-800 mb-3 text-sm">Producto: <strong>{res.producto_nombre}</strong></p>
@@ -150,10 +160,7 @@ export default function Home() {
             </div>
           </div>
           
-          <button 
-            onClick={() => setChatAbierto(true)} 
-            className="mt-8 bg-white text-blue-700 font-bold py-4 px-8 rounded-full hover:bg-blue-100 transition text-lg shadow-lg transform hover:scale-105"
-          >
+          <button onClick={() => setChatAbierto(true)} className="mt-8 bg-white text-blue-700 font-bold py-4 px-8 rounded-full hover:bg-blue-100 transition text-lg shadow-lg transform hover:scale-105">
             Abrir Chat de Apoyo IA
           </button>
         </div>
@@ -174,19 +181,9 @@ export default function Home() {
           {/* TARJETA PARA PROFESIONALES */}
           <div className="mt-10 p-6 bg-blue-50 rounded-xl border border-blue-100 max-w-md mx-auto">
             <h3 className="text-lg font-bold text-gray-800 mb-2">¿Eres psicólogo o centro educativo?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Aparece destacado en nuestro mapa y llega a miles de familias de la zona.
-            </p>
-            
-            {/* ENLACE A GOOGLE FORMS */}
-            <a 
-              href="https://docs.google.com/forms/d/e/1FAIpQLSe9d0JlDcu3X_Qyf6Pxve5d-u7mn8clDHw_XHxHkxbHJRTsPw/viewform?usp=header" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition shadow-md">
-                Registrar mi centro
-              </button>
+            <p className="text-sm text-gray-600 mb-4">Aparece destacado en nuestro mapa y llega a miles de familias de la zona.</p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSe9d0JlDcu3X_Qyf6Pxve5d-u7mn8clDHw_XHxHkxbHJRTsPw/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition shadow-md">Registrar mi centro</button>
             </a>
           </div>
         </div>
@@ -197,9 +194,7 @@ export default function Home() {
         <h3 className="text-2xl font-bold text-gray-800 mb-2">📖 Rincón de la Familia</h3>
         <p className="text-gray-600 mb-4">Artículos y consejos prácticos para el día a día.</p>
         <a href="/articulos">
-          <button className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-2 px-6 rounded-full hover:bg-blue-50 transition">
-            Leer Artículos
-          </button>
+          <button className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-2 px-6 rounded-full hover:bg-blue-50 transition">Leer Artículos</button>
         </a>
       </div>
 
@@ -210,8 +205,6 @@ export default function Home() {
           <p className="text-gray-600 mb-8">Ayúdanos a mantener esta web activa y accesible para todas las familias.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            
-            {/* Producto 1: Pack Premium */}
             <div className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition flex flex-col justify-between bg-white">
               <div>
                 <h3 className="font-bold text-xl text-gray-900 mb-2">📚 Pack Guías Premium</h3>
@@ -219,13 +212,10 @@ export default function Home() {
                 <div className="text-3xl font-extrabold text-blue-600 mb-4">9.99€</div>
               </div>
               <a href="#" className="opacity-50 cursor-not-allowed">
-                <button className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg">
-                  Próximamente
-                </button>
+                <button className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg">Próximamente</button>
               </a>
             </div>
 
-            {/* Producto 2: Donación / Apoyo */}
             <div className="border border-dashed border-blue-300 rounded-xl p-6 hover:shadow-lg transition flex flex-col justify-between bg-white">
               <div>
                 <h3 className="font-bold text-xl text-gray-900 mb-2">☕ Invita un Café</h3>
@@ -233,12 +223,9 @@ export default function Home() {
                 <div className="text-3xl font-extrabold text-gray-600 mb-4">3€</div>
               </div>
                <a href="https://buy.stripe.com/9B6aEX9Ilg4v7xA3Scffy00" target="_blank" rel="noopener noreferrer">
-                <button className="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-4 rounded-lg">
-                  Apoyar Proyecto
-                </button>
+                <button className="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-4 rounded-lg">Apoyar Proyecto</button>
               </a>
             </div>
-
           </div>
         </div>
       </div>
