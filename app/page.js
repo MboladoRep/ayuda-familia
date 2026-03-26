@@ -13,7 +13,6 @@ export default function Home() {
   const [recursos, setRecursos] = useState([]);
   const [verMapa, setVerMapa] = useState(false);
   
-  // Estado para controlar el chat desde la página principal
   const [chatAbierto, setChatAbierto] = useState(false); 
 
   useEffect(() => {
@@ -164,19 +163,47 @@ export default function Home() {
       <div className="bg-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">📍 Ayuda Profesional Cerca de Ti</h2>
+          <p className="text-gray-600 mb-6">Consulta nuestro mapa de centros y especialistas.</p>
+          
           <button onClick={() => setVerMapa(!verMapa)} className="mb-6 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg border">
             {verMapa ? 'Ocultar Mapa' : 'Ver Mapa'}
           </button>
+          
           {verMapa && <div className="shadow-xl rounded-xl overflow-hidden border"><Mapa recursos={recursos} /></div>}
           
-          {/* Enlace para profesionales */}
-          <p className="text-xs text-gray-400 mt-6">
-            ¿Eres psicólogo o centro educativo? <a href="mailto:tuemail@ejemplo.com" className="underline hover:text-blue-600">Contacta para aparecer destacado</a>.
-          </p>
+          {/* TARJETA PARA PROFESIONALES */}
+          <div className="mt-10 p-6 bg-blue-50 rounded-xl border border-blue-100 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">¿Eres psicólogo o centro educativo?</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Aparece destacado en nuestro mapa y llega a miles de familias de la zona.
+            </p>
+            
+            {/* ENLACE A GOOGLE FORMS */}
+            <a 
+              href="https://docs.google.com/forms/d/e/1FAIpQLSe9d0JlDcu3X_Qyf6Pxve5d-u7mn8clDHw_XHxHkxbHJRTsPw/viewform?usp=header" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition shadow-md">
+                Registrar mi centro
+              </button>
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* SECCIÓN TIENDA / APOYO (MONETIZACIÓN) */}
+      {/* ENLACE AL BLOG */}
+      <div className="bg-blue-50 py-10 px-4 text-center border-t">
+        <h3 className="text-2xl font-bold text-gray-800 mb-2">📖 Rincón de la Familia</h3>
+        <p className="text-gray-600 mb-4">Artículos y consejos prácticos para el día a día.</p>
+        <a href="/articulos">
+          <button className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-2 px-6 rounded-full hover:bg-blue-50 transition">
+            Leer Artículos
+          </button>
+        </a>
+      </div>
+
+      {/* SECCIÓN TIENDA / APOYO */}
       <div className="bg-gray-100 py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">💡 Apoya este Proyecto</h2>
@@ -184,14 +211,13 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             
-            {/* Producto 1: Pack Premium (Si tienes link, si no, puedes borrarlo) */}
+            {/* Producto 1: Pack Premium */}
             <div className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition flex flex-col justify-between bg-white">
               <div>
                 <h3 className="font-bold text-xl text-gray-900 mb-2">📚 Pack Guías Premium</h3>
                 <p className="text-gray-500 text-sm mb-4">Accede a todas las guías descargables en PDF.</p>
                 <div className="text-3xl font-extrabold text-blue-600 mb-4">9.99€</div>
               </div>
-              {/* IMPORTANTE: Crea este enlace en Stripe y ponlo aquí */}
               <a href="#" className="opacity-50 cursor-not-allowed">
                 <button className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg">
                   Próximamente
@@ -199,15 +225,14 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Producto 2: Donación / Apoyo (TU ENLACE AQUÍ) */}
+            {/* Producto 2: Donación / Apoyo */}
             <div className="border border-dashed border-blue-300 rounded-xl p-6 hover:shadow-lg transition flex flex-col justify-between bg-white">
               <div>
                 <h3 className="font-bold text-xl text-gray-900 mb-2">☕ Invita un Café</h3>
                 <p className="text-gray-500 text-sm mb-4">Apoya el desarrollo y mantenimiento de la web.</p>
                 <div className="text-3xl font-extrabold text-gray-600 mb-4">3€</div>
               </div>
-               {/* TU ENLACE DE STRIPE AQUÍ */}
-              <a href="https://buy.stripe.com/9B6aEX9Ilg4v7xA3Scffy00" target="_blank" rel="noopener noreferrer">
+               <a href="https://buy.stripe.com/9B6aEX9Ilg4v7xA3Scffy00" target="_blank" rel="noopener noreferrer">
                 <button className="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-4 rounded-lg">
                   Apoyar Proyecto
                 </button>
@@ -218,21 +243,10 @@ export default function Home() {
         </div>
       </div>
 
-                 {/* ENLACE AL BLOG */}
-      <div className="bg-blue-50 py-10 px-4 text-center border-t">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">📖 Rincón de la Familia</h3>
-        <p className="text-gray-600 mb-4">Artículos y consejos prácticos para el día a día.</p>
-        <a href="/articulos">
-          <button className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-2 px-6 rounded-full hover:bg-blue-50 transition">
-            Leer Artículos
-          </button>
-        </a>
-      </div>        
       <footer className="py-8 text-center text-gray-500 text-sm bg-blue-50">
         <p>Hecho con ❤️ para las familias.</p>
       </footer>
 
-      {/* Pasamos el control del chat al componente */}
       <ChatBubble isOpen={chatAbierto} setIsOpen={setChatAbierto} />
 
     </main>
