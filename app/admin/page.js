@@ -46,19 +46,15 @@ export default function AdminPage() {
   const generarArticulo = async () => {
     setEstado('⏳ Generando artículo...');
     try {
-      // Enviamos tema o prompt al backend
       const res = await fetch('/api/generar-articulo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          tema: temaSelect, 
-          prompt: promptCustom 
-        })
+        body: JSON.stringify({ tema: temaSelect, prompt: promptCustom })
       });
       
       if (res.ok) {
         setEstado('✅ ¡Artículo creado!');
-        setTemaSelect(''); // Limpiamos selects
+        setTemaSelect('');
         setPromptCustom('');
         cargarArticulos();
       } else {
@@ -117,24 +113,22 @@ export default function AdminPage() {
           <div className="space-y-4 mb-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
             <p className="text-sm text-gray-600 font-semibold">Opcional: Elige tema o escribe instrucciones</p>
             
-            {/* SELECTOR DE TEMA */}
             <select 
               value={temaSelect} 
               onChange={(e) => { setTemaSelect(e.target.value); setPromptCustom(''); }} 
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded text-black"
             >
-              <option value="">-- Tema Aleatorio (Sin especificar) --</option>
+              <option value="">-- Tema Aleatorio --</option>
               {TEMAS_PREDEFINIDOS.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
 
             <p className="text-center text-xs text-gray-400">O BIEN</p>
 
-            {/* PROMPT PERSONALIZADO */}
             <textarea 
               value={promptCustom}
               onChange={(e) => { setPromptCustom(e.target.value); setTemaSelect(''); }}
-              placeholder="Escribe tu propia idea: ej. 'Consejos para viajar en coche con niños pequeños sin que se mareen'"
-              className="w-full border p-2 rounded text-sm h-20"
+              placeholder="Escribe tu propia idea: ej. 'Consejos para viajar con niños'"
+              className="w-full border p-2 rounded text-sm h-20 text-black"
             />
           </div>
 
@@ -156,22 +150,35 @@ export default function AdminPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-bold mb-1">Título</label>
-                      <input type="text" value={datosEdicion.titulo} onChange={(e) => setDatosEdicion({...datosEdicion, titulo: e.target.value})} className="w-full border p-2 rounded" />
+                      <input type="text" value={datosEdicion.titulo} onChange={(e) => setDatosEdicion({...datosEdicion, titulo: e.target.value})} className="w-full border p-2 rounded text-black" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1">Contenido</label>
-                      <textarea rows="4" value={datosEdicion.contenido} onChange={(e) => setDatosEdicion({...datosEdicion, contenido: e.target.value})} className="w-full border p-2 rounded" />
+                      <textarea rows="4" value={datosEdicion.contenido} onChange={(e) => setDatosEdicion({...datosEdicion, contenido: e.target.value})} className="w-full border p-2 rounded text-black" />
                     </div>
+                    
+                    {/* GALERÍA Y URL (RESTAURADO) */}
                     <div>
                       <label className="block text-sm font-bold mb-2">Seleccionar Foto</label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2 mb-2">
                         {FOTOS_DISPONIBLES.map((url, idx) => (
                           <div key={idx} onClick={() => setDatosEdicion({...datosEdicion, imagen_url: url})} className={`cursor-pointer border-2 rounded overflow-hidden h-20 ${datosEdicion.imagen_url === url ? 'border-blue-600 ring-2 ring-blue-300' : 'border-transparent'}`}>
                             <img src={url} alt="Opción" className="w-full h-full object-cover" />
                           </div>
                         ))}
                       </div>
+                      
+                      {/* CAMPO URL EXTERNA AÑADIDO */}
+                      <p className="text-xs text-gray-400 mt-1">O pega una URL externa:</p>
+                      <input 
+                        type="text" 
+                        value={datosEdicion.imagen_url} 
+                        onChange={(e) => setDatosEdicion({...datosEdicion, imagen_url: e.target.value})}
+                        className="w-full border p-2 rounded text-sm mt-1 text-black"
+                        placeholder="https://..."
+                      />
                     </div>
+
                     <div className="flex gap-2">
                       <button onClick={guardarCambios} className="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Guardar</button>
                       <button onClick={cancelarEdicion} className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400">Cancelar</button>
